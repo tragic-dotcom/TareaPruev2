@@ -1,121 +1,69 @@
-# CRUD Flask con carrito y reserva temporal
+# Demostracion QR con Flask y MongoDB Atlas
 
-Proyecto de demostracion para continuar el CRUD inicial desarrollado con:
+Proyecto para mostrar como un codigo QR abre la ficha de un registro guardado en MongoDB Atlas. Esta version esta preparada para ejecutarse en Visual Studio Code, subirse a GitHub y desplegarse en Render.
 
-- Python y Flask.
-- MongoDB Atlas.
-- HTML, CSS y JavaScript.
-- GitHub y Render.
+## Lo unico que debes cambiar
 
-El ejemplo simula la venta de boletos. Cuando una persona agrega un boleto al
-carrito, queda reservado durante 60 segundos. En otra ventana aparece como
-reservado y no puede seleccionarse. La reserva puede cancelarse, vencer o
-confirmarse como compra.
+Cada equipo debe colocar su propia cadena de conexion en la variable `MONGO_URI`.
 
-## Funciones incluidas
-
-- Crear, consultar, editar y eliminar boletos.
-- Cargar seis registros de demostracion.
-- Reservar un boleto de manera segura.
-- Identificar quien realizo la reserva.
-- Mostrar un contador en el carrito.
-- Impedir que otro usuario reserve el mismo boleto.
-- Cancelar una reserva.
-- Liberar automaticamente reservas vencidas.
-- Confirmar la compra.
-- Filtrar por disponible, reservado o comprado.
-
-## Estructura del proyecto
-
-```text
-proyecto_flask_reserva_temporal/
-|
-|-- app.py
-|-- requirements.txt
-|-- Procfile
-|-- render.yaml
-|-- .env.example
-|
-|-- templates/
-|   |-- base.html
-|   `-- index.html
-|
-`-- static/
-    |-- css/
-    |   `-- estilos.css
-    `-- js/
-        `-- app.js
+```env
+MONGO_URI=mongodb+srv://USUARIO:CONTRASENA@CLUSTER.mongodb.net/?retryWrites=true&w=majority
 ```
 
-## 1. Abrir en Visual Studio Code
+El proyecto ya utiliza:
 
-1. Descomprime el archivo ZIP.
-2. Abre Visual Studio Code.
-3. Selecciona **Archivo > Abrir carpeta**.
-4. Elige la carpeta `proyecto_flask_reserva_temporal`.
-5. Abre una terminal dentro de Visual Studio Code.
+- Base de datos: `catalogo_qr`
+- Coleccion: `productos`
+- Comando de Render: `gunicorn app:app`
+- Variable del puerto: `PORT`
 
-## 2. Crear el entorno virtual
+## 1. Preparar MongoDB Atlas
 
-### Windows PowerShell
+1. Entra a MongoDB Atlas.
+2. Abre tu proyecto y tu cluster.
+3. En **Database Access**, crea o revisa un usuario con contrasena.
+4. En **Network Access**, agrega las direcciones de salida de Render o el acceso autorizado por el docente.
+5. En el cluster, presiona **Connect**.
+6. Selecciona **Drivers** o **Connect your application**.
+7. Selecciona Python y copia la cadena completa.
+8. Sustituye `<password>` por la contrasena real del usuario.
 
-```powershell
-python -m venv venv
-venv\Scripts\Activate.ps1
-```
+No compartas la cadena de conexion y no la publiques en GitHub.
 
-### Windows CMD
+## 2. Ejecutar en Visual Studio Code
 
-```bat
-python -m venv venv
-venv\Scripts\activate
-```
+Abre la carpeta del proyecto y abre **Terminal > Nueva terminal**.
 
 ### macOS o Linux
 
 ```bash
-python3 -m venv venv
-source venv/bin/activate
+python3 -m venv .venv
+source .venv/bin/activate
+python3 -m pip install -r requirements.txt
+cp .env.example .env
 ```
 
-## 3. Instalar las dependencias
+### Windows
 
 ```bash
-pip install -r requirements.txt
+py -m venv .venv
+.venv\Scripts\activate
+python -m pip install -r requirements.txt
+copy .env.example .env
 ```
 
-## 4. Configurar MongoDB Atlas
+Abre el archivo `.env` y reemplaza solamente el valor de `MONGO_URI`.
 
-1. Copia el archivo `.env.example`.
-2. Cambia el nombre de la copia a `.env`.
-3. Abre `.env` y coloca tu cadena de conexion de Atlas:
-
-```env
-MONGO_URI=mongodb+srv://usuario:contrasena@cluster.mongodb.net/?retryWrites=true&w=majority
-MONGO_DB=reserva_boletos
-RESERVA_SEGUNDOS=60
-PORT=5000
-FLASK_DEBUG=1
-```
-
-No subas el archivo `.env` a GitHub. Ya esta incluido en `.gitignore`.
-
-En MongoDB Atlas comprueba:
-
-- Que el usuario de base de datos tenga permisos de lectura y escritura.
-- Que la contrasena sea correcta.
-- Que Network Access permita la conexion desde tu equipo.
-
-## 5. Ejecutar el proyecto
-
-```bash
-python app.py
-```
-
-En macOS o Linux tambien puede utilizarse:
+Despues ejecuta:
 
 ```bash
 python3 app.py
+```
+
+En Windows tambien puedes usar:
+
+```bash
+python app.py
 ```
 
 Abre en el navegador:
@@ -124,80 +72,80 @@ Abre en el navegador:
 http://127.0.0.1:5000
 ```
 
-Presiona **Cargar 6 boletos de ejemplo** para preparar la demostracion.
+La primera vez, la aplicacion crea automaticamente cuatro documentos en la coleccion `productos`.
 
-## 6. Probar dos compradores
+## 3. Demostracion
 
-1. En la ventana normal escribe `Comprador 1`.
-2. Abre una ventana de incognito en la misma direccion.
-3. En incognito escribe `Comprador 2`.
-4. Reserva el asiento A-01 desde la primera ventana.
-5. Actualiza la segunda ventana.
-6. Comprueba que A-01 aparece reservado.
-7. Intenta reservarlo desde la segunda ventana.
-8. La API debe rechazar la segunda reserva.
+1. Abre una ficha desde el catalogo.
+2. Regresa y cambia la disponibilidad.
+3. Abre nuevamente la misma ficha.
+4. Comprueba que el QR conserva la direccion, pero la ficha muestra el dato actualizado.
+5. Agrega un nuevo registro.
+6. Revisa en Atlas que el documento aparezca en `catalogo_qr > productos`.
+7. Prueba una direccion inexistente para observar el mensaje de control.
 
-Despues pruebe:
+## 4. Subir a GitHub
 
-- Cancelar la reserva.
-- Dejar que el contador llegue a cero.
-- Confirmar la compra.
+Sube todos los archivos excepto `.env`. El archivo `.gitignore` ya evita que las credenciales se agreguen por accidente.
 
-## 7. Rutas principales de la API
+## 5. Desplegar en Render
 
-| Metodo | Ruta | Funcion |
-|---|---|---|
-| GET | `/api/salud` | Comprueba Flask y Atlas |
-| GET | `/api/boletos` | Consulta boletos y libera vencidos |
-| POST | `/api/boletos` | Crea un boleto |
-| PUT | `/api/boletos/<id>` | Edita un boleto disponible |
-| DELETE | `/api/boletos/<id>` | Elimina un boleto disponible |
-| POST | `/api/boletos/semilla` | Carga seis ejemplos |
-| POST | `/api/boletos/<id>/reservar` | Crea la reserva temporal |
-| POST | `/api/boletos/<id>/cancelar` | Cancela la reserva propia |
-| POST | `/api/boletos/<id>/confirmar` | Confirma la compra |
-| POST | `/api/boletos/liberar-vencidas` | Libera reservas vencidas |
+En Render crea un **Web Service** desde el repositorio de GitHub.
 
-## 8. Subir a GitHub
+| Configuracion | Valor |
+|---|---|
+| Language | Python 3 |
+| Build Command | `pip install -r requirements.txt` |
+| Start Command | `gunicorn app:app` |
 
-```bash
-git init
-git add .
-git commit -m "CRUD Flask con reserva temporal"
-git branch -M main
-git remote add origin URL_DE_TU_REPOSITORIO
-git push -u origin main
+En **Environment** agrega:
+
+| Variable | Valor |
+|---|---|
+| `MONGO_URI` | Cadena completa de MongoDB Atlas |
+| `MONGO_DB` | `catalogo_qr` |
+| `SECRET_KEY` | Una frase larga y privada |
+
+Guarda los cambios y realiza el despliegue.
+
+## 6. QR en el celular
+
+En la computadora, `localhost` solamente funciona en esa misma computadora. Para escanear el QR con un celular, utiliza la aplicacion publicada en Render.
+
+Si el QR publicado no contiene la direccion correcta, agrega en Render:
+
+```env
+APP_BASE_URL=https://nombre-de-tu-aplicacion.onrender.com
 ```
 
-Revise que `.env` no aparezca dentro del repositorio.
+## Como adaptarlo a otro proyecto
 
-## 9. Publicar en Render
+Los alumnos pueden cambiar los productos por:
 
-1. Crea un nuevo **Web Service**.
-2. Conecta el repositorio de GitHub.
-3. Utiliza estos datos:
+- Libros.
+- Equipos.
+- Eventos.
+- Habitaciones.
+- Servicios.
+- Pedidos.
+- Reservaciones.
 
-```text
-Build Command: pip install -r requirements.txt
-Start Command: gunicorn app:app
-```
+La idea se conserva: cada documento tiene un `_id`, ese identificador forma una direccion y el QR abre la ficha correspondiente.
 
-4. Agrega las variables de entorno:
+## Errores frecuentes
 
-```text
-MONGO_URI = cadena completa de MongoDB Atlas
-MONGO_DB = reserva_boletos
-RESERVA_SEGUNDOS = 60
-```
+### Aparece la pantalla "Agrega la conexion"
 
-5. Realiza el despliegue.
+Falta crear el archivo `.env` o no se escribio `MONGO_URI`.
 
-Para una demostracion rapida use 60 segundos. En el proyecto final puede cambiar
-`RESERVA_SEGUNDOS` a 300 para reservar durante cinco minutos.
+### Atlas no permite la conexion
 
-## Idea central del ejemplo
+Revisa usuario, contrasena y Network Access. Si la contrasena contiene caracteres especiales, utiliza una contrasena alfanumerica para la practica o codifica esos caracteres correctamente.
 
-La reserva no depende solamente del contador de JavaScript. Flask realiza en
-MongoDB una operacion que cambia el boleto a reservado solo si todavia esta
-disponible. Por eso dos personas no pueden apartar correctamente el mismo
-boleto al mismo tiempo.
+### Render inicia, pero la verificacion falla
+
+Comprueba que `MONGO_URI` exista en **Environment** y que Atlas permita las direcciones de salida de Render.
+
+### El QR no aparece
+
+La imagen QR se obtiene de `api.qrserver.com`; se necesita conexion a Internet.

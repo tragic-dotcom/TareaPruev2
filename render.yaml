@@ -1,14 +1,16 @@
 services:
   - type: web
-    name: crud-flask-reserva-temporal
+    name: demostracion-qr-mongodb
     runtime: python
-    plan: free
     buildCommand: pip install -r requirements.txt
     startCommand: gunicorn app:app
+    healthCheckPath: /salud
     envVars:
+      - key: PYTHON_VERSION
+        value: 3.12.8
       - key: MONGO_URI
         sync: false
       - key: MONGO_DB
-        value: reserva_boletos
-      - key: RESERVA_SEGUNDOS
-        value: 60
+        value: catalogo_qr
+      - key: SECRET_KEY
+        generateValue: true
